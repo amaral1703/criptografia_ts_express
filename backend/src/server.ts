@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { OneTimePadEncrypt } from './encrypter';
 import { OneTimePadDecrypt } from './decrypter';
-import { otpValidateDecryptionInput } from './helpers/input-validator/Decrypt';
-import { otpValidateEncryptionInput } from './helpers/input-validator/Encrypt';
+import { caesarValidateDecryptionInput, otpValidateDecryptionInput } from './helpers/input-validator/Decrypt';
+import { caesarValidateEncryptionInput, otpValidateEncryptionInput } from './helpers/input-validator/Encrypt';
 import { CaesarCipherEncrypt } from './encrypter/caesarcypher-encrypter';
 import { CaesarCipherDecrypt } from './decrypter/caesarcypher-decrypter';
-import { normalizeCaesarInput, textToDecimals } from './helpers/text';
+import { normalizeCaesarInput } from './helpers/text';
 
 const app = express ();
 const port = 3000;
@@ -46,6 +46,10 @@ app.post('/api/decrypt/otp', (req: Request, res: Response) => {
 
 app.post('/api/encrypt/caesarcipher', (req: Request, res: Response) => {
   const { text, key } = req.body;
+  const validation = caesarValidateEncryptionInput(text, key);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error })
+  }
   try {
     const encrypted = CaesarCipherEncrypt( text, key );
     console.log(encrypted)
@@ -58,6 +62,10 @@ app.post('/api/encrypt/caesarcipher', (req: Request, res: Response) => {
 
 app.post('/api/decrypt/caesarcipher', (req: Request, res: Response) => {
   const { text, key } = req.body;
+  const validation = caesarValidateDecryptionInput(text, key);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error })
+  }
   try {
     const text_normalized = normalizeCaesarInput(text)
     const decrypted = CaesarCipherDecrypt( text_normalized, key );
