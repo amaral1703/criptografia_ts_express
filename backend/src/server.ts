@@ -1,11 +1,9 @@
 import express, { Request, Response } from 'express';
-import { OneTimePadEncrypt } from './encrypter';
-import { OneTimePadDecrypt } from './decrypter';
+import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt } from './encrypter';
+import { OneTimePadDecrypt, CaesarCipherDecrypt, VigenereDecrypt } from './decrypter';
 import { caesarValidateDecryptionInput, otpValidateDecryptionInput } from './helpers/input-validator/Decrypt';
 import { caesarValidateEncryptionInput, otpValidateEncryptionInput } from './helpers/input-validator/Encrypt';
-import { CaesarCipherEncrypt } from './encrypter/caesarcypher-encrypter';
-import { CaesarCipherDecrypt } from './decrypter/caesarcypher-decrypter';
-import { normalizeCaesarInput } from './helpers/text';
+import { normalizeDecryptTextInput } from './helpers/text';
 
 const app = express ();
 const port = 3000;
@@ -67,7 +65,7 @@ app.post('/api/decrypt/caesarcipher', (req: Request, res: Response) => {
     return res.status(400).json({ error: validation.error })
   }
   try {
-    const text_normalized = normalizeCaesarInput(text)
+    const text_normalized = normalizeDecryptTextInput(text)
     const decrypted = CaesarCipherDecrypt( text_normalized, key );
     console.log(decrypted)
     res.json({ decrypted })
@@ -76,6 +74,32 @@ app.post('/api/decrypt/caesarcipher', (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro interno na criptografia da cifra de cesar'})
   }
 })
+
+app.post('/api/encrypt/vigenere', (req: Request, res: Response) => {
+  const { text, key } = req.body;
+  try {
+    const encrypted = VigenereEncrypt( text, key );
+    console.log(encrypted)
+    res.json({ encrypted })
+  } catch (error) {
+    console.error('Erro na criptografia da cifra vigenere:', error)
+    res.status(500).json({ error: 'Erro interno na criptografia da cifra vigenere'})
+  }
+})
+
+app.post('/api/decrypt/vigenere', (req: Request, res: Response) => {
+  const { text, key } = req.body;
+  try {
+    const text_normalized = normalizeDecryptTextInput(text)
+    const decrypted = VigenereDecrypt( text_normalized, key );
+    console.log(decrypted)
+    res.json({ decrypted })
+  } catch (error) {
+    console.error('Erro na criptografia da cifra vigenere:', error)
+    res.status(500).json({ error: 'Erro interno na criptografia da cifra vigenere'})
+  }
+})
+
 
 
 app.listen(port, () => {
