@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt } from './encrypter';
 import { OneTimePadDecrypt, CaesarCipherDecrypt, VigenereDecrypt } from './decrypter';
-import { caesarValidateDecryptionInput, otpValidateDecryptionInput } from './helpers/input-validator/Decrypt';
-import { caesarValidateEncryptionInput, otpValidateEncryptionInput } from './helpers/input-validator/Encrypt';
+import { caesarValidateDecryptionInput, otpValidateDecryptionInput, vigenereValidateDecryptionInput } from './helpers/input-validator/Decrypt';
+import { caesarValidateEncryptionInput, otpValidateEncryptionInput, vigenereValidateEncryptionInput } from './helpers/input-validator/Encrypt';
 import { normalizeDecryptTextInput } from './helpers/text';
 
 const app = express ();
@@ -77,6 +77,10 @@ app.post('/api/decrypt/caesarcipher', (req: Request, res: Response) => {
 
 app.post('/api/encrypt/vigenere', (req: Request, res: Response) => {
   const { text, key } = req.body;
+  const validation = vigenereValidateEncryptionInput(text , key);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error})
+  }
   try {
     const encrypted = VigenereEncrypt( text, key );
     console.log(encrypted)
@@ -89,6 +93,10 @@ app.post('/api/encrypt/vigenere', (req: Request, res: Response) => {
 
 app.post('/api/decrypt/vigenere', (req: Request, res: Response) => {
   const { text, key } = req.body;
+  const validation = vigenereValidateDecryptionInput(text , key);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error})
+  }
   try {
     const text_normalized = normalizeDecryptTextInput(text)
     const decrypted = VigenereDecrypt( text_normalized, key );
