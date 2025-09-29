@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
-import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt } from './encrypter';
-import { OneTimePadDecrypt, CaesarCipherDecrypt, VigenereDecrypt } from './decrypter';
-import { caesarValidateDecryptionInput, otpValidateDecryptionInput, vigenereValidateDecryptionInput } from './helpers/input-validator/Decrypt';
-import { caesarValidateEncryptionInput, otpValidateEncryptionInput, vigenereValidateEncryptionInput } from './helpers/input-validator/Encrypt';
+import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt, HillEncrypt } from './encrypter';
+import { OneTimePadDecrypt, CaesarCipherDecrypt, VigenereDecrypt, HillDecrypt } from './decrypter';
+import { caesarValidateDecryptionInput, hillValidateDecryptionInput, otpValidateDecryptionInput, vigenereValidateDecryptionInput } from './helpers/input-validator/Decrypt';
+import { caesarValidateEncryptionInput, hillValidateEncryptionInput, otpValidateEncryptionInput, vigenereValidateEncryptionInput } from './helpers/input-validator/Encrypt';
 import { normalizeDecryptTextInput } from './helpers/text';
 
 const app = express ();
@@ -107,6 +107,40 @@ app.post('/api/decrypt/vigenere', (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro interno na criptografia da cifra vigenere'})
   }
 })
+
+app.post('/api/encrypt/hill', (req: Request, res: Response) => {
+  const { text, key } = req.body;
+  const validation = hillValidateEncryptionInput(text, key);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error });
+  }
+  try {
+    const encrypted = HillEncrypt( text, key );
+    console.log(encrypted)
+    res.json({ encrypted })
+  } catch (error) {
+    console.error('Erro na criptografia da cifra vigenere:', error)
+    res.status(500).json({ error: 'Erro interno na criptografia da cifra vigenere'})
+  }
+})
+
+app.post('/api/decrypt/hill', (req: Request, res: Response) => {
+  const { text, key } = req.body;
+   const validation = hillValidateDecryptionInput(text, key);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error });
+  }
+  try {
+    const text_normalized = normalizeDecryptTextInput(text)
+    const decrypted = HillDecrypt( text_normalized, key );
+    console.log(decrypted)
+    res.json({ decrypted })
+  } catch (error) {
+    console.error('Erro na descriptografia da cifra de hill:', error)
+    res.status(500).json({ error: 'Erro interno na descriptografia da cifra de hill'})
+  }
+})
+
 
 
 

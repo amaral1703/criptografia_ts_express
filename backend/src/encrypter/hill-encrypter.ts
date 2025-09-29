@@ -8,11 +8,16 @@ function numbersToText(numbers: number[]): string {
   return numbers.map(n => String.fromCharCode((n % 26) + 65)).join('');
 }
 
-// Função para multiplicar vetor por matriz 2x2
+// Função auxiliar para módulo sempre positivo
+function mod(n: number, m: number): number {
+  return ((n % m) + m) % m;
+}
+
+// Corrigir a multiplicação da matriz
 function multiplyMatrix2x2(vec: number[], mat: number[][]): number[] {
   return [
-    (mat[0][0] * vec[0] + mat[0][1] * vec[1]) % 26,
-    (mat[1][0] * vec[0] + mat[1][1] * vec[1]) % 26
+    mod(mat[0][0] * vec[0] + mat[0][1] * vec[1], 26),
+    mod(mat[1][0] * vec[0] + mat[1][1] * vec[1], 26)
   ];
 }
 
@@ -25,13 +30,15 @@ function modInverse(a: number, m: number): number {
   throw new Error('Sem inverso modular');
 }
 
-// Função para calcular a matriz inversa 2x2 mod 26
+// Corrigir o cálculo do determinante
 function inverseMatrix2x2(mat: number[][]): number[][] {
-  const det = (mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]) % 26;
+  // Garantir que o determinante seja positivo
+  const det = mod(mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0], 26);
   const detInv = modInverse(det, 26);
+  
   return [
-    [ ( mat[1][1] * detInv ) % 26, (-mat[0][1] * detInv + 26) % 26 ],
-    [ (-mat[1][0] * detInv + 26) % 26, ( mat[0][0] * detInv ) % 26 ]
+    [mod(mat[1][1] * detInv, 26), mod(-mat[0][1] * detInv, 26)],
+    [mod(-mat[1][0] * detInv, 26), mod(mat[0][0] * detInv, 26)]
   ];
 }
 
@@ -42,6 +49,16 @@ function keyToMatrix(key: string): number[][] {
     [nums[0], nums[1]],
     [nums[2], nums[3]]
   ];
+}
+
+function isMatrixInvertible(mat: number[][]): boolean {
+  const det = mod(mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0], 26);
+  // Verificar se det e 26 são coprimos
+  return gcd(det, 26) === 1;
+}
+
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
 }
 
 export function HillEncrypt(plainText: string, key: string): { encryptedNumbers: string, encryptedText: string } {

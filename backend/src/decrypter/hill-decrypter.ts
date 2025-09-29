@@ -4,10 +4,13 @@ function textToNumbers(text: string): number[] {
 function numbersToText(numbers: number[]): string {
   return numbers.map(n => String.fromCharCode((n % 26) + 65)).join('');
 }
+function mod(n: number, m: number): number {
+  return ((n % m) + m) % m;
+}
 function multiplyMatrix2x2(vec: number[], mat: number[][]): number[] {
   return [
-    (mat[0][0] * vec[0] + mat[0][1] * vec[1]) % 26,
-    (mat[1][0] * vec[0] + mat[1][1] * vec[1]) % 26
+    mod(mat[0][0] * vec[0] + mat[0][1] * vec[1], 26),
+    mod(mat[1][0] * vec[0] + mat[1][1] * vec[1], 26)
   ];
 }
 function modInverse(a: number, m: number): number {
@@ -18,11 +21,11 @@ function modInverse(a: number, m: number): number {
   throw new Error('Sem inverso modular');
 }
 function inverseMatrix2x2(mat: number[][]): number[][] {
-  const det = (mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]) % 26;
+  const det = mod(mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0], 26);
   const detInv = modInverse(det, 26);
   return [
-    [ ( mat[1][1] * detInv ) % 26, (-mat[0][1] * detInv + 26) % 26 ],
-    [ (-mat[1][0] * detInv + 26) % 26, ( mat[0][0] * detInv ) % 26 ]
+    [mod(mat[1][1] * detInv, 26), mod(-mat[0][1] * detInv, 26)],
+    [mod(-mat[1][0] * detInv, 26), mod(mat[0][0] * detInv, 26)]
   ];
 }
 function keyToMatrix(key: string): number[][] {
