@@ -103,7 +103,9 @@ const swaggerDefinition: SwaggerDefinition = {
 
 const options = {
   definition: swaggerDefinition,
-  apis: ['./src/**/*.ts'], // Caminho para os arquivos com anotações JSDoc
+  apis: [
+    './src/docs/*.docs.ts',
+    './src/**/*.ts'],
 };
 
 export const specs = swaggerJsdoc(options);
