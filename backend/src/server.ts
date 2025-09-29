@@ -1,4 +1,6 @@
 import express, { Request, Response } from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { specs } from './config/swagger';
 import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt, HillEncrypt } from './encrypter';
 import { OneTimePadDecrypt, CaesarCipherDecrypt, VigenereDecrypt, HillDecrypt } from './decrypter';
 import { caesarValidateDecryptionInput, hillValidateDecryptionInput, otpValidateDecryptionInput, vigenereValidateDecryptionInput } from './helpers/input-validator/Decrypt';
@@ -8,6 +10,12 @@ import { normalizeDecryptTextInput } from './helpers/text';
 const app = express ();
 const port = 3000;
 app.use(express.json())
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "API de Criptografia",
+  customfavIcon: "/assets/favicon.ico"
+}));
 
 app.post('/api/encrypt/otp', (req: Request, res: Response) => {
   const { text, key } = req.body;
