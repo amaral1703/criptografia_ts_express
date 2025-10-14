@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #1a0000;
+  color: #f0f0f0;
+  
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+h1 {
+  color: #f0f0f0;
+}
