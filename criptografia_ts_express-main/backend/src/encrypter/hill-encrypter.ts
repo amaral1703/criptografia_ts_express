@@ -63,6 +63,12 @@ function gcd(a: number, b: number): number {
 
 export function HillEncrypt(plainText: string, key: string): { encryptedNumbers: string, encryptedText: string } {
   const matrix = keyToMatrix(key);
+  
+  // Verificar se a matriz é invertível
+  if (!isMatrixInvertible(matrix)) {
+    throw new Error(`A chave "${key}" não gera uma matriz invertível. Use uma chave diferente como: HILL, CRYPTO, CIPHER, etc.`);
+  }
+  
   let numbers = textToNumbers(plainText);
   // Padding se necessário
   if (numbers.length % 2 !== 0) numbers.push(23); // 'X' = 23
@@ -73,6 +79,7 @@ export function HillEncrypt(plainText: string, key: string): { encryptedNumbers:
     const enc = multiplyMatrix2x2(pair, matrix);
     encryptedNums.push(...enc);
   }
+  
   return {
     encryptedNumbers: encryptedNums.join(','),
     encryptedText: numbersToText(encryptedNums)

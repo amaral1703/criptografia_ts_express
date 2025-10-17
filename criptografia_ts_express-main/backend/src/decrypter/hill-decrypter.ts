@@ -36,18 +36,31 @@ function keyToMatrix(key: string): number[][] {
   ];
 }
 
-export function HillDecrypt(encryptedDecimals: string, key: string): { decryptedText: string, decryptedNumbers: string } {
+export function HillDecrypt(encryptedNumbers: string, key: string): { decryptedText: string, decryptedNumbers: string } {
   const matrix = keyToMatrix(key);
+  
+  // Verificar se a matriz é invertível
+  const det = mod(matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0], 26);
+  if (gcd(det, 26) !== 1) {
+    throw new Error(`A chave "${key}" não gera uma matriz invertível. Use uma chave diferente.`);
+  }
+  
   const invMatrix = inverseMatrix2x2(matrix);
-  const numbers = encryptedDecimals.split(',').map(n => parseInt(n));
+  const numbers = encryptedNumbers.split(',').map(n => parseInt(n));
   let decryptedNums: number[] = [];
+  
   for (let i = 0; i < numbers.length; i += 2) {
     const pair = [numbers[i], numbers[i + 1]];
     const dec = multiplyMatrix2x2(pair, invMatrix);
     decryptedNums.push(...dec);
   }
+  
   return {
     decryptedText: numbersToText(decryptedNums),
     decryptedNumbers: decryptedNums.join(',')
   };
+}
+
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
 }
