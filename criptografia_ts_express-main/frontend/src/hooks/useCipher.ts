@@ -16,8 +16,13 @@ interface CipherResult {
   decrypted?: string | CipherDetails; 
 }
 
+interface CipherResultDisplay {
+  text: string;
+  numbers?: string;
+}
+
 interface CipherHook {
-  result: string | null;
+  result: CipherResultDisplay | null;
   error: string | null;
   loading: boolean;
   
@@ -30,7 +35,7 @@ interface CipherHook {
 }
 
 export const useCipher = (): CipherHook => {
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<CipherResultDisplay | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -65,6 +70,7 @@ export const useCipher = (): CipherHook => {
       
       const cipherResult = data as CipherResult;
       let finalResultText: string | null = null;
+      let finalResultNumbers: string | undefined = undefined;
 
       // === LÓGICA DE EXTRAÇÃO DE RESULTADO ===
       if (cipherResult.encrypted) {
@@ -72,6 +78,7 @@ export const useCipher = (): CipherHook => {
           finalResultText = cipherResult.encrypted;
         } else if (cipherResult.encrypted.encryptedText) {
           finalResultText = cipherResult.encrypted.encryptedText;
+          finalResultNumbers = cipherResult.encrypted.encryptedNumbers;
         }
       } 
       else if (cipherResult.decrypted) {
@@ -79,15 +86,20 @@ export const useCipher = (): CipherHook => {
           finalResultText = cipherResult.decrypted;
         } else if (cipherResult.decrypted.decryptedText) {
           finalResultText = cipherResult.decrypted.decryptedText;
+          finalResultNumbers = cipherResult.decrypted.decryptedNumbers;
         }
       }
 
       // === ATUALIZAÇÃO DO ESTADO ===
       if (finalResultText) {
-        const actionLabel = action === 'encrypt' ? 'Cifrado' : 'Decifrado';
-        setResult(`${actionLabel}: ${finalResultText}`);
+        setResult({
+          text: finalResultText,
+          numbers: finalResultNumbers
+        });
       } else {
-        setResult('Operação concluída, mas o resultado não foi encontrado.');
+        setResult({
+          text: 'Operação concluída, mas o resultado não foi encontrado.'
+        });
       }
 
     } catch (err) {

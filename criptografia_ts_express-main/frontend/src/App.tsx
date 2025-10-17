@@ -3,11 +3,15 @@ import CaesarCipher from './components/CaesarCipher';
 import VigenereCipher from './components/VigenereCipher';
 import OTPCipher from './components/OTPCipher';
 import HillCipher from './components/HillCipher';
+import Modal from './components/Modal';
+import InfoIcon from './components/InfoIcon';
+import CryptographyInfo from './components/CryptographyInfo';
 
 type CipherType = 'Cesar' | 'Vigenere' | 'Hill' | 'OTP';
 
 const App: React.FC = () => {
   const [currentCipher, setCurrentCipher] = useState<CipherType>('Cesar');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const renderCipherComponent = () => {
     switch (currentCipher) {
@@ -24,41 +28,104 @@ const App: React.FC = () => {
     }
   };
 
-  return (
-    <div style={{
-      padding: '20px',
-      maxWidth: '900px',
-      margin: '0 auto',
-      fontFamily: 'Arial, sans-serif',
-      backgroundColor: '#631e1e',
-      borderRadius: '8px',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)'
-    }}>
-      <h1>**Simulador de Criptografia**</h1>
+  const getCipherDisplayName = (cipher: CipherType): string => {
+    switch (cipher) {
+      case 'Cesar': return 'César';
+      case 'Vigenere': return 'Vigenère';
+      case 'Hill': return 'Hill';
+      case 'OTP': return 'One-Time Pad';
+      default: return cipher;
+    }
+  };
 
-      <nav style={{ marginBottom: '20px', borderBottom: '1px solid #993333', paddingBottom: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-        {['Cesar', 'Vigenere', 'Hill', 'OTP'].map((cipher) => (
-          <button
-            key={cipher}
-            onClick={() => setCurrentCipher(cipher as CipherType)}
-            style={{
-              padding: '10px 15px',
-              cursor: 'pointer',
-              fontWeight: currentCipher === cipher ? 'bold' : 'normal',
-              backgroundColor: currentCipher === cipher ? '#d64343ff' : '#1a0000',
-              color: 'white',
-              border: '1px solid #999',
-              borderRadius: '5px'
-            }}
-          >
-            {cipher}
-          </button>
-        ))}
+  return (
+    <div className="card" style={{
+      padding: '2rem',
+      maxWidth: '56rem',
+      margin: '2rem auto',
+      minHeight: 'calc(100vh - 4rem)'
+    }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        marginBottom: '2rem'
+      }}>
+        <h1 style={{ 
+          fontSize: '2.25rem', 
+          fontWeight: '700',
+          margin: 0,
+          background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--muted-foreground)))',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>
+          Simulador de Criptografia
+        </h1>
+      </div>
+
+      <nav style={{ 
+        marginBottom: '2rem', 
+        borderBottom: '1px solid hsl(var(--border))', 
+        paddingBottom: '1rem'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '0.5rem', 
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
+          {(['Cesar', 'Vigenere', 'Hill', 'OTP'] as CipherType[]).map((cipher) => (
+            <button
+              key={cipher}
+              onClick={() => setCurrentCipher(cipher)}
+              className={`btn ${currentCipher === cipher ? 'btn-primary' : 'btn-secondary'}`}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              {getCipherDisplayName(cipher)}
+            </button>
+          ))}
+        </div>
       </nav>
+
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        marginBottom: '1.5rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h2 style={{ 
+            fontSize: '1.5rem', 
+            fontWeight: '600',
+            margin: 0,
+            color: 'hsl(var(--foreground))'
+          }}>
+            {getCipherDisplayName(currentCipher)}
+          </h2>
+          <InfoIcon 
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
+      </div>
 
       <main>
         {renderCipherComponent()}
       </main>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={`Sobre a Cifra ${getCipherDisplayName(currentCipher)}`}
+      >
+        <CryptographyInfo 
+          type={currentCipher === 'Cesar' ? 'Caesar' : currentCipher} 
+        />
+      </Modal>
     </div>
   );
 };

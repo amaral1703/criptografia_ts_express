@@ -24,51 +24,67 @@ const CipherForm: React.FC<CipherFormProps> = ({ cipherName, keyLabel, keyInputT
         await processCipher(cipherName, action, text, parsedKey);
     };
 
-    return (
-        <div style={{
-            border: '1px solid #993333',
-            padding: '20px',
-            borderRadius: '8px',
-            marginTop: '20px',
-            backgroundColor: '#4e1919',
-            color: '#f0f0f0'
-        }}>
-            <h2>{keyLabel.split('(')[0].trim()}</h2>
+    const getPlaceholder = () => {
+        switch (cipherName) {
+            case 'caesarcipher':
+                return 'Digite um número de 1 a 25';
+            case 'vigenere':
+                return 'Digite uma palavra-chave (ex: CHAVE)';
+            case 'hill':
+                return 'Digite 4 números separados por vírgula (ex: 5, 8, 17, 3)';
+            case 'otp':
+                return 'Digite uma chave aleatória';
+            default:
+                return keyLabel;
+        }
+    };
 
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#f0f0f0' }}>Texto:</label>
+    return (
+        <div className="card" style={{ padding: '1.5rem' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ 
+                    display: 'block', 
+                    marginBottom: '0.5rem', 
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: 'hsl(var(--foreground))'
+                }}>
+                    Texto para criptografar/descriptografar:
+                </label>
                 <textarea
                     value={text}
-                    onChange={(e) => setText(e.target.value.toUpperCase().replace(/[^A-Z0-9,\.\s]/g, ''))}
-                    rows={3}
+                    onChange={(e) => setText(e.target.value.toUpperCase().replace(/[^A-Z0-9,.\s]/g, ''))}
+                    rows={4}
+                    className="input"
+                    placeholder="Digite o texto aqui..."
                     style={{
                         width: '100%',
-                        padding: '8px',
-                        boxSizing: 'border-box',
-                        backgroundColor: '#1a0000',
-                        color: '#f0f0f0',
-                        border: '1px solid #555',
-                        borderRadius: '4px'
+                        resize: 'vertical',
+                        minHeight: '100px'
                     }}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#f0f0f0' }}>{keyLabel}:</label>
+            <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ 
+                    display: 'block', 
+                    marginBottom: '0.5rem', 
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: 'hsl(var(--foreground))'
+                }}>
+                    {keyLabel}:
+                </label>
                 {keyInputType === 'textarea' ? (
                     <textarea
                         value={keyInput}
                         onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
                         rows={3}
-                        placeholder="Exemplo para Hill: 5, 8, 17, 3"
+                        className="input"
+                        placeholder={getPlaceholder()}
                         style={{
                             width: '100%',
-                            padding: '8px',
-                            boxSizing: 'border-box',
-                            backgroundColor: '#333',
-                            color: '#f0f0f0',
-                            border: '1px solid #555',
-                            borderRadius: '4px'
+                            resize: 'vertical'
                         }}
                     />
                 ) : (
@@ -76,31 +92,131 @@ const CipherForm: React.FC<CipherFormProps> = ({ cipherName, keyLabel, keyInputT
                         type={keyInputType === 'number' ? 'number' : 'text'}
                         value={keyInput}
                         onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
-                        placeholder={keyLabel}
-                        style={{
-                            width: '100%',
-                            padding: '8px',
-                            boxSizing: 'border-box',
-                            backgroundColor: '#1a0000',
-                            color: '#f0f0f0',
-                            border: '1px solid #555',
-                            borderRadius: '4px'
-                        }}
+                        className="input"
+                        placeholder={getPlaceholder()}
+                        style={{ width: '100%' }}
                     />
                 )}
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button onClick={() => handleAction('encrypt')} disabled={loading} style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px' }}>
+            <div style={{ 
+                display: 'flex', 
+                gap: '0.75rem', 
+                justifyContent: 'center',
+                flexWrap: 'wrap'
+            }}>
+                <button 
+                    onClick={() => handleAction('encrypt')} 
+                    disabled={loading}
+                    className="btn btn-primary"
+                    style={{ 
+                        padding: '0.75rem 1.5rem',
+                        minWidth: '140px',
+                        backgroundColor: '#22c55e',
+                        borderColor: '#22c55e'
+                    }}
+                    onMouseEnter={(e) => {
+                        if (!loading) {
+                            e.currentTarget.style.backgroundColor = '#16a34a';
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (!loading) {
+                            e.currentTarget.style.backgroundColor = '#22c55e';
+                        }
+                    }}
+                >
                     {loading ? 'Criptografando...' : 'Criptografar'}
                 </button>
-                <button onClick={() => handleAction('decrypt')} disabled={loading} style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px' }}>
+                <button 
+                    onClick={() => handleAction('decrypt')} 
+                    disabled={loading}
+                    className="btn btn-destructive"
+                    style={{ 
+                        padding: '0.75rem 1.5rem',
+                        minWidth: '140px'
+                    }}
+                >
                     {loading ? 'Descriptografando...' : 'Descriptografar'}
                 </button>
             </div>
 
-            {error && <p style={{ color: '#dc3545', marginTop: '15px', fontWeight: 'bold' }}>Erro: {error}</p>}
-            {result && <p style={{ color: '#007bff', marginTop: '15px', fontWeight: 'bold' }}>Resultado: {result}</p>}
+            {error && (
+                <div style={{ 
+                    marginTop: '1.5rem',
+                    padding: '0.75rem',
+                    backgroundColor: 'hsl(var(--destructive) / 0.1)',
+                    border: '1px solid hsl(var(--destructive) / 0.2)',
+                    borderRadius: 'calc(var(--radius) - 2px)',
+                    color: 'hsl(var(--destructive))',
+                    fontSize: '0.875rem'
+                }}>
+                    <strong>Erro:</strong> {error}
+                </div>
+            )}
+
+            {result && (
+                <div style={{ 
+                    marginTop: '1.5rem',
+                    padding: '0.75rem',
+                    backgroundColor: 'hsl(210 40% 98% / 0.05)',
+                    border: '1px solid hsl(210 40% 98% / 0.1)',
+                    borderRadius: 'calc(var(--radius) - 2px)',
+                    color: 'hsl(var(--primary))',
+                    fontSize: '0.875rem'
+                }}>
+                    <strong>Resultado:</strong>
+                    
+                    {/* Texto resultado */}
+                    <div style={{ marginTop: '0.5rem' }}>
+                        <div style={{ 
+                            marginBottom: '0.25rem',
+                            fontSize: '0.75rem',
+                            color: 'hsl(var(--muted-foreground))',
+                            fontWeight: '500'
+                        }}>
+                            Texto:
+                        </div>
+                        <div style={{ 
+                            padding: '0.5rem',
+                            backgroundColor: 'hsl(var(--muted))',
+                            borderRadius: 'calc(var(--radius) - 4px)',
+                            fontFamily: 'monospace',
+                            fontSize: '0.8rem',
+                            wordBreak: 'break-all',
+                            color: 'hsl(var(--foreground))'
+                        }}>
+                            {result.text}
+                        </div>
+                    </div>
+
+                    {/* Números resultado (se disponível) */}
+                    {result.numbers && (
+                        <div style={{ marginTop: '0.75rem' }}>
+                            <div style={{ 
+                                marginBottom: '0.25rem',
+                                fontSize: '0.75rem',
+                                color: 'hsl(var(--muted-foreground))',
+                                fontWeight: '500'
+                            }}>
+                                Números (códigos ASCII):
+                            </div>
+                            <div style={{ 
+                                padding: '0.5rem',
+                                backgroundColor: 'hsl(var(--secondary))',
+                                borderRadius: 'calc(var(--radius) - 4px)',
+                                fontFamily: 'monospace',
+                                fontSize: '0.75rem',
+                                wordBreak: 'break-all',
+                                color: 'hsl(var(--secondary-foreground))',
+                                border: '1px solid hsl(var(--border))'
+                            }}>
+                                {result.numbers}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
