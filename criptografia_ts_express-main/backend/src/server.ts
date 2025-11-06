@@ -2,10 +2,10 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger';
-import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt, HillEncrypt } from './encrypter';
+import { OneTimePadEncrypt, CaesarCipherEncrypt, VigenereEncrypt, HillEncrypt, KeccakEncryptPure, KeccakEncryptLib } from './encrypter';
 import { OneTimePadDecrypt, CaesarCipherDecrypt, VigenereDecrypt, HillDecrypt } from './decrypter';
 import { caesarValidateDecryptionInput, hillValidateDecryptionInput, otpValidateDecryptionInput, vigenereValidateDecryptionInput } from './helpers/input-validator/Decrypt';
-import { caesarValidateEncryptionInput, hillValidateEncryptionInput, otpValidateEncryptionInput, vigenereValidateEncryptionInput } from './helpers/input-validator/Encrypt';
+import { caesarValidateEncryptionInput, hillValidateEncryptionInput, otpValidateEncryptionInput, vigenereValidateEncryptionInput, keccakValidateEncryptionInput } from './helpers/input-validator/Encrypt';
 import { normalizeDecryptTextInput } from './helpers/text';
 
 const app = express ();
@@ -156,6 +156,28 @@ app.post('/api/decrypt/hill', (req: Request, res: Response) => {
 
 
 
+
+// Rota para hash Keccak-256 (SHA-3)
+app.post('/api/hash/keccak', (req: Request, res: Response) => {
+  const { text, implementation } = req.body;
+  const validation = keccakValidateEncryptionInput(text, implementation);
+  if (!validation.isValid) {
+    return res.status(400).json({ error: validation.error })
+  }
+  try {
+    let hash;
+    if (implementation.toLowerCase() === 'pure') {
+      hash = KeccakEncryptPure(text);
+    } else {
+      hash = KeccakEncryptLib(text);
+    }
+    console.log(hash)
+    res.json({ hash })
+  } catch (error) {
+    console.error('Erro ao gerar hash Keccak:', error)
+    res.status(500).json({ error: 'Erro interno ao gerar hash'})
+  }
+})
 
 app.listen(port, () => {
   console.log(`Server running on port: ${port}`)

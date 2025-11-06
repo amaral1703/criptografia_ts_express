@@ -3,11 +3,12 @@ import CaesarCipher from './components/CaesarCipher';
 import VigenereCipher from './components/VigenereCipher';
 import OTPCipher from './components/OTPCipher';
 import HillCipher from './components/HillCipher';
+import KeccakCipher from './components/KeccakCipher';
 import Modal from './components/Modal';
 import InfoIcon from './components/InfoIcon';
 import CryptographyInfo from './components/CryptographyInfo';
 
-type CipherType = 'Cesar' | 'Vigenere' | 'Hill' | 'OTP';
+type CipherType = 'Cesar' | 'Vigenere' | 'Hill' | 'OTP' | 'Keccak';
 
 const App: React.FC = () => {
   const [currentCipher, setCurrentCipher] = useState<CipherType>('Cesar');
@@ -23,6 +24,8 @@ const App: React.FC = () => {
         return <HillCipher />;
       case 'OTP':
         return <OTPCipher />;
+      case 'Keccak':
+        return <KeccakCipher />;
       default:
         return <CaesarCipher />;
     }
@@ -34,6 +37,7 @@ const App: React.FC = () => {
       case 'Vigenere': return 'Vigenère';
       case 'Hill': return 'Hill';
       case 'OTP': return 'One-Time Pad';
+      case 'Keccak': return 'Keccak (SHA-3)';
       default: return cipher;
     }
   };
@@ -60,7 +64,7 @@ const App: React.FC = () => {
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text'
         }}>
-          Simulador de Criptografia
+          Introdução à Criptografia
         </h1>
       </div>
 
@@ -75,7 +79,7 @@ const App: React.FC = () => {
           justifyContent: 'center',
           flexWrap: 'wrap'
         }}>
-          {(['Cesar', 'Vigenere', 'Hill', 'OTP'] as CipherType[]).map((cipher) => (
+          {(['Cesar', 'Vigenere', 'Hill', 'OTP', 'Keccak'] as CipherType[]).map((cipher) => (
             <button
               key={cipher}
               onClick={() => setCurrentCipher(cipher)}
@@ -120,10 +124,10 @@ const App: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={`Sobre a Cifra ${getCipherDisplayName(currentCipher)}`}
+        title={`Sobre ${getCipherDisplayName(currentCipher)}`}
       >
         <CryptographyInfo 
-          type={currentCipher === 'Cesar' ? 'Caesar' : currentCipher} 
+          type={currentCipher === 'Cesar' ? 'Caesar' : currentCipher === 'Keccak' ? 'Keccak' : currentCipher} 
         />
       </Modal>
     </div>

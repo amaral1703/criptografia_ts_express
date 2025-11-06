@@ -9,7 +9,7 @@ const HillCipher: React.FC = () => {
   return (
     <CipherForm
       cipherName="hill"
-      keyLabel="Cifra de Hill (Chave: Palavra de 4 letras ex: CRIP)" 
+      keyLabel="Cifra de Hill (Chave: Palavra de 4 letras ex: HILL)" 
       keyInputType="text"
       keyParser={parseHillKey}
     />

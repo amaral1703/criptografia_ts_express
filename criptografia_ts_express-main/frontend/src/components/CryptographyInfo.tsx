@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CryptographyInfoProps {
-  type: 'Caesar' | 'Vigenere' | 'Hill' | 'OTP';
+  type: 'Caesar' | 'Vigenere' | 'Hill' | 'OTP' | 'Keccak';
 }
 
 const CryptographyInfo: React.FC<CryptographyInfoProps> = ({ type }) => {
@@ -145,6 +145,47 @@ export function HillEncrypt(plainText: string, key: string) {
 }`,
           security: 'PERFEITA - matematicamente inquebrável se: (1) a chave for verdadeiramente aleatória, (2) do mesmo tamanho do texto, (3) usada apenas uma vez, (4) mantida em segredo.',
           usage: 'Diplomacia de alto nível, comunicações militares críticas. Impraticável para uso comum devido ao tamanho das chaves.'
+        };
+
+      case 'Keccak':
+        return {
+          title: 'Keccak (SHA-3)',
+          description: 'Keccak é a função hash criptográfica vencedora da competição SHA-3 do NIST (2012). Diferente de cifras, é uma função unidirecional - converte qualquer entrada em um hash de tamanho fixo (256 bits), mas não pode ser revertida.',
+          howItWorks: [
+            'Converte a mensagem em formato binário',
+            'Aplica padding seguindo o padrão pad10*1',
+            'Inicializa estado 5x5 de 64-bit lanes (1600 bits total)',
+            'Fase de absorção: XOR dos blocos da mensagem com o estado',
+            'Executa 24 rodadas de permutação Keccak-f[1600]',
+            'Cada rodada aplica: θ (theta), ρ (rho), π (pi), χ (chi), ι (iota)',
+            'Fase de extração: extrai 256 bits do estado como hash final',
+            'Resultado: hash hexadecimal de 64 caracteres'
+          ],
+          codeExample: `// Implementação simplificada - versão com biblioteca
+import { sha3_256 } from 'js-sha3';
+
+export function KeccakEncryptLib(input: string) {
+  // Calcula o hash SHA3-256
+  const hashHex = sha3_256(input);
+  
+  // Converte hex para array de números
+  const hashBytes: number[] = [];
+  for (let i = 0; i < hashHex.length; i += 2) {
+    hashBytes.push(parseInt(hashHex.substr(i, 2), 16));
+  }
+  
+  return {
+    encryptedText: hashHex,
+    encryptedNumbers: hashBytes.join(','),
+    algorithm: 'Keccak-256 (SHA-3) - Library'
+  };
+}
+
+// Implementação pura disponível no backend
+// Inclui todas as funções: theta, rhoPi, chi, iota
+// e a permutação completa Keccak-f[1600]`,
+          security: 'MUITO ALTA - Resistente a colisões, pré-imagem e segunda pré-imagem. Aprovado pelo NIST como padrão SHA-3. Diferente do SHA-2, usa construção de esponja (sponge) ao invés de Merkle-Damgård.',
+          usage: 'Blockchain (Ethereum), assinaturas digitais, verificação de integridade, armazenamento de senhas (com salt), certificados digitais, e qualquer aplicação que necessite hash criptográfico seguro.'
         };
 
       default:
